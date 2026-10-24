@@ -56,15 +56,9 @@
   table.ant-table tbody tr.ant-table-row { cursor: pointer; }
   td.rank { color: var(--muted); font-variant-numeric: tabular-nums; }
   td.center { text-align: center; }
-  .title-cell { display: flex; align-items: center; gap: 10px; }
   .title-cell a { color: #9ec5ff; text-decoration: none; }
   .title-cell a:hover { text-decoration: underline; }
-  .ant-image {
-    width: 44px; height: 66px; border-radius: 4px; overflow: hidden;
-    background: #000; flex: 0 0 auto;
-  }
-  .ant-image-img { width: 44px; height: 66px; object-fit: cover; display: block; }
-  .meta { color: var(--muted); font-size: 12px; }
+  .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -91,57 +85,74 @@
       <th>抢完次</th><th>做种</th><th>下载</th>
     </tr>
   </thead>
-  <tbody>
-    <tr class="ant-table-row" data-row-key="1">
-      <td class="rank">1</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster1.jpg" alt="" /></div><div><a href="/detail/1">Dune: Part Two 2024 2160p UHD BluRay HDR10 TrueHD 7.1 Atmos</a><div class="meta">电影 / 4K / 中字</div></div></div></td>
-      <td class="center">61.24 GB</td><td>2024-05-12</td><td class="center">3821</td><td class="center">642</td><td class="center">88</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="2">
-      <td class="rank">2</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster2.jpg" alt="" /></div><div><a href="/detail/2">Blade Runner 2049 2017 REMUX 1080p AVC DTS-HD MA 5.1</a><div class="meta">电影 / 1080P</div></div></div></td>
-      <td class="center">32.08 GB</td><td>2023-11-02</td><td class="center">2940</td><td class="center">501</td><td class="center">120</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="3">
-      <td class="rank">3</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster3.jpg" alt="" /></div><div><a href="/detail/3">Interstellar 2014 IMAX 2160p UHD BluRay x265 10bit HDR DTS-HD MA 5.1</a><div class="meta">电影 / 4K / 国配</div></div></div></td>
-      <td class="center">48.76 GB</td><td>2024-02-18</td><td class="center">2411</td><td class="center">488</td><td class="center">76</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="4">
-      <td class="rank">4</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster4.jpg" alt="" /></div><div><a href="/detail/4">Oppenheimer 2023 2160p UHD BluRay HDR10 TrueHD 5.1</a><div class="meta">电影 / 4K</div></div></div></td>
-      <td class="center">55.90 GB</td><td>2024-01-06</td><td class="center">2105</td><td class="center">377</td><td class="center">91</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="5">
-      <td class="rank">5</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster5.jpg" alt="" /></div><div><a href="/detail/5">Arrival 2016 1080p BluRay x264 DTS 5.1</a><div class="meta">电影 / 1080P</div></div></div></td>
-      <td class="center">12.44 GB</td><td>2023-08-21</td><td class="center">1890</td><td class="center">266</td><td class="center">58</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="6">
-      <td class="rank">6</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster6.jpg" alt="" /></div><div><a href="/detail/6">The Batman 2022 2160p WEB-DL DDP5.1 Atmos HDR</a><div class="meta">电影 / 4K</div></div></div></td>
-      <td class="center">28.31 GB</td><td>2022-04-30</td><td class="center">1602</td><td class="center">311</td><td class="center">64</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="7">
-      <td class="rank">7</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster7.jpg" alt="" /></div><div><a href="/detail/7">Sicario 2015 1080p BluRay x264 AC3</a><div class="meta">电影 / 1080P</div></div></div></td>
-      <td class="center">9.87 GB</td><td>2021-10-11</td><td class="center">1401</td><td class="center">198</td><td class="center">43</td>
-    </tr>
-    <tr class="ant-table-row" data-row-key="8">
-      <td class="rank">8</td>
-      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster8.jpg" alt="" /></div><div><a href="/detail/8">Tenet 2020 2160p UHD BluRay x265 10bit HDR DTS-HD MA 5.1</a><div class="meta">电影 / 4K</div></div></div></td>
-      <td class="center">44.12 GB</td><td>2021-03-09</td><td class="center">1188</td><td class="center">176</td><td class="center">39</td>
-    </tr>
-  </tbody>
+  <tbody></tbody>
 </table>
 
 <script src="/script.user.js"></script>
 <script>
-  // 演示页专用：?autohover=3 时自动在第 3 行触发一次 mouseover，方便截图/回归
+  // 演示页专用：
+  // 1) 像真的排行榜一样，先用 XHR 拉一份「接口数据」（/api/torrent/search 是 serve.mjs 里的假数据），
+  //    行里只有标题文字、没有缩略图 —— 海报地址只存在于这份 JSON 的 imageList 里；
+  // 2) ?autohover=3 时自动悬浮第 3 行，方便截图/回归。
   (function () {
-    var n = parseInt((location.search.match(/autohover=(\d+)/) || [])[1], 10);
-    if (!n) return;
-    window.addEventListener('load', function () {
+    var tbody = document.querySelector('table.ant-table tbody');
+
+    function cell(text, cls) {
+      var td = document.createElement('td');
+      if (cls) td.className = cls;
+      td.textContent = text;
+      return td;
+    }
+
+    function render(list) {
+      tbody.innerHTML = '';
+      list.forEach(function (t, i) {
+        var tr = document.createElement('tr');
+        tr.className = 'ant-table-row';
+        tr.setAttribute('data-row-key', String(t.id));
+
+        var tdTitle = document.createElement('td');
+        var wrap = document.createElement('div');
+        wrap.className = 'title-cell';
+        var a = document.createElement('a');
+        a.href = '/detail/' + t.id;
+        a.textContent = t.name;
+        var meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = t.categoryName || '电影';
+        wrap.appendChild(a);
+        wrap.appendChild(meta);
+        tdTitle.appendChild(wrap);
+
+        tr.appendChild(cell(String(i + 1), 'rank'));
+        tr.appendChild(tdTitle);
+        tr.appendChild(cell(t.size, 'center'));
+        tr.appendChild(cell(t.createdDate));
+        tr.appendChild(cell(String(t.timesCompleted), 'center'));
+        tr.appendChild(cell(String(t.seeders), 'center'));
+        tr.appendChild(cell(String(t.leechers), 'center'));
+        tbody.appendChild(tr);
+      });
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/torrent/search?mode=rankings&pageSize=100');
+    xhr.onload = function () {
+      try {
+        render(JSON.parse(xhr.responseText).data || []);
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7">演示数据加载失败</td></tr>';
+      }
+      autoHover();
+    };
+    xhr.onerror = function () {
+      tbody.innerHTML = '<tr><td colspan="7">演示数据加载失败</td></tr>';
+    };
+    xhr.send();
+
+    function autoHover() {
+      var n = parseInt((location.search.match(/autohover=(\d+)/) || [])[1], 10);
+      if (!n) return;
       setTimeout(function () {
         var row = document.querySelectorAll('tr.ant-table-row')[n - 1];
         if (!row) return;
@@ -149,8 +160,8 @@
         target.dispatchEvent(new PointerEvent('pointerover', {
           bubbles: true, composed: true, pointerType: 'mouse', pointerId: 1,
         }));
-      }, 300);
-    });
+      }, 350);
+    }
   })();
 </script>
 </body>

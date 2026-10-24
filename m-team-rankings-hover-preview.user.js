@@ -2,14 +2,14 @@
 // @name         M-Team 排行榜悬浮大图预览
 // @name:en      M-Team Rankings Hover Preview
 // @namespace    https://github.com/Eliaukzzz/m-team-rankings-hover-preview
-// @version      1.1.1
-// @description  鼠标悬浮 M-Team 排行榜（/rankings）任意一行，在行侧弹出该种子的海报大图；Alt+P 或右下角按钮开关
+// @version      1.2.0
+// @description  鼠标悬浮 M-Team 排行榜（/rankings）任意一行，在行侧弹出该种子的海报大图（排行榜本身没有缩略图，海报取自页面接口数据）；Alt+P 或右下角按钮开关
 // @author       Eliaukzzz
 // @homepageURL  https://github.com/Eliaukzzz/m-team-rankings-hover-preview
 // @supportURL   https://github.com/Eliaukzzz/m-team-rankings-hover-preview/issues
 // @license      MIT
 // @match        *://*.m-team.cc/*
-// @run-at       document-idle
+// @run-at       document-start
 // @noframes
 // @grant        none
 // ==/UserScript==
@@ -353,10 +353,210 @@
   }
 
   /* ==================================================================
+   * 从页面数据里取海报
+   * ------------------------------------------------------------------
+   * 新版排行榜（/rankings）的表格只有标题文字，行内没有任何缩略图，
+   * 海报只存在于接口返回的数据里。这里用两条互不依赖的路子去挖：
+   *   1) 拦下 /api/ 的响应，把 { id, imageList } 收进 posterMap（首选）
+   *   2) 顺着 React fiber 往上爬，从 props.torrent / props.record 里拿
+   * 两条都拿不到时，才退回“放大行内已有的缩略图”。
+   * ================================================================== */
+  const posterMap = new Map();
+
+  function absUrl(src) {
+    if (!src || typeof src !== 'string') return '';
+    const s = src.trim();
+    if (!s || /^data:/i.test(s)) return '';
+    if (s.indexOf('//') === 0) return location.protocol + s;
+    if (/^https?:\/\//i.test(s)) return s;
+    if (s.charAt(0) === '/') return location.origin + s;
+    return '';
+  }
+
+  function firstImageOf(list) {
+    if (!list) return '';
+    const arr = Array.isArray(list) ? list : [list];
+    for (let i = 0; i < arr.length; i++) {
+      const it = arr[i];
+      const s = typeof it === 'string'
+        ? it
+        : (it && (it.url || it.src || it.path || it.image)) || '';
+      const abs = absUrl(s);
+      if (abs) return abs;
+    }
+    return '';
+  }
+
+  function registerPoster(id, url) {
+    if (id == null || !url) return;
+    posterMap.set(String(id), url);
+  }
+
+  // 在任意 JSON 里深度找 { id, imageList }
+  function harvestJSON(tree) {
+    const stack = [tree];
+    let guard = 0;
+    let found = 0;
+    while (stack.length && guard++ < 20000) {
+      const cur = stack.pop();
+      if (!cur || typeof cur !== 'object') continue;
+      if (Array.isArray(cur)) {
+        for (let i = 0; i < cur.length; i++) stack.push(cur[i]);
+        continue;
+      }
+      if (cur.id != null && cur.imageList) {
+        const url = firstImageOf(cur.imageList);
+        if (url) {
+          registerPoster(cur.id, url);
+          found++;
+        }
+      }
+      for (const k in cur) {
+        const v = cur[k];
+        if (v && typeof v === 'object') stack.push(v);
+      }
+    }
+    return found;
+  }
+
+  function harvestText(text) {
+    if (!text || typeof text !== 'string') return;
+    if (text.length > 8 * 1024 * 1024) return;
+    if (text.indexOf('imageList') === -1) return;
+    try {
+      const n = harvestJSON(JSON.parse(text));
+      if (n) log('harvested', n, 'posters, total', posterMap.size);
+    } catch (e) {
+      /* 不是 JSON 就算了 */
+    }
+  }
+
+  function hookNetwork() {
+    try {
+      const rawOpen = XMLHttpRequest.prototype.open;
+      const rawSend = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.open = function (method, url) {
+        try { this.__mthpUrl = String(url || ''); } catch (e) {}
+        return rawOpen.apply(this, arguments);
+      };
+      XMLHttpRequest.prototype.send = function () {
+        const xhr = this;
+        try {
+          if (/\/api\//i.test(xhr.__mthpUrl || '')) {
+            xhr.addEventListener('load', function () {
+              try {
+                if (xhr.status === 200) harvestText(xhr.responseText);
+              } catch (e) {}
+            });
+          }
+        } catch (e) {}
+        return rawSend.apply(this, arguments);
+      };
+    } catch (e) {
+      log('xhr hook failed', e);
+    }
+
+    try {
+      const rawFetch = window.fetch;
+      if (typeof rawFetch === 'function') {
+        window.fetch = function (input) {
+          const p = rawFetch.apply(this, arguments);
+          try {
+            const url = typeof input === 'string' ? input : (input && input.url) || '';
+            if (/\/api\//i.test(url) && p && typeof p.then === 'function') {
+              p.then(function (res) {
+                try {
+                  res.clone().text().then(harvestText, function () {});
+                } catch (e) {}
+              }, function () {});
+            }
+          } catch (e) {}
+          return p;
+        };
+      }
+    } catch (e) {
+      log('fetch hook failed', e);
+    }
+  }
+
+  // 顺着 React fiber 往上爬，找 memoizedProps 里的 torrent / record
+  function reactTorrentOf(node) {
+    if (!node || typeof node !== 'object') return null;
+    let key = null;
+    const keys = Object.keys(node);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      if (k.indexOf('__reactFiber$') === 0 || k.indexOf('__reactInternalInstance$') === 0) {
+        key = k;
+        break;
+      }
+    }
+    if (!key) return null;
+
+    let fiber = node[key];
+    for (let depth = 0; fiber && depth < 30; depth++, fiber = fiber.return) {
+      const p = fiber.memoizedProps;
+      if (!p || typeof p !== 'object') continue;
+      const cand = p.torrent || p.record || p.data || p.item;
+      if (cand && typeof cand === 'object' && cand.id != null && (cand.imageList || cand.name)) {
+        return cand;
+      }
+    }
+    return null;
+  }
+
+  function idOfRow(row) {
+    const key = row.getAttribute('data-row-key');
+    if (key && /^\d+$/.test(key.trim())) return key.trim();
+    const a = row.querySelector('a[href*="/detail/"]');
+    if (a) {
+      const m = /\/(\d+)(?:[/?#]|$)/.exec(a.getAttribute('href') || '');
+      if (m) return m[1];
+    }
+    return '';
+  }
+
+  // 返回 { url, from } 或 null
+  function posterOfRow(row) {
+    const id = idOfRow(row);
+    if (id && posterMap.has(id)) return { url: posterMap.get(id), from: 'api' };
+
+    const anchor = row.querySelector('a[href*="/detail/"]') || row;
+    const torrent = reactTorrentOf(anchor) || reactTorrentOf(row);
+    if (torrent) {
+      const url =
+        firstImageOf(torrent.imageList) ||
+        absUrl(torrent.poster || torrent.cover || '') ||
+        firstImageOf(torrent.images);
+      if (url) {
+        if (torrent.id != null) registerPoster(torrent.id, url);
+        return { url: url, from: 'react' };
+      }
+    }
+    return null;
+  }
+
+  // 站点同时存了 -N.jpg（缩略）与 jp-N.jpg（大图）两版，大图优先
+  function posterCandidates(url) {
+    const list = [];
+    const jp = url.replace(/-(\d+\.jpe?g)$/i, 'jp-$1');
+    if (jp !== url) list.push(jp);
+    if (list.indexOf(url) === -1) list.push(url);
+    return list;
+  }
+  /* ==================================================================
    * 展示
    * ================================================================== */
   function captionOf(row) {
     if (!CONFIG.showCaption) return '';
+
+    // 有页面数据时优先用它，比从 DOM 里抠文本更完整
+    const anchor = row.querySelector('a[href*="/detail/"]') || row;
+    const torrent = reactTorrentOf(anchor) || reactTorrentOf(row);
+    if (torrent && typeof torrent.name === 'string' && torrent.name.trim()) {
+      return torrent.name.replace(/\s+/g, ' ').trim().slice(0, 160);
+    }
+
     const link =
       row.querySelector('a[href*="/detail/"]') ||
       row.querySelector('a[href*="/torrent"]') ||
@@ -394,15 +594,28 @@
   }
 
   function show(row) {
+    const poster = posterOfRow(row);
     const thumb = pickThumb(row);
-    if (!thumb) {
-      log('row has no thumbnail', row);
+
+    const urls = [];
+    if (poster && poster.url) {
+      posterCandidates(poster.url).forEach(function (u) {
+        if (urls.indexOf(u) === -1) urls.push(u);
+      });
+    }
+    if (thumb) {
+      largeCandidates(thumb).forEach(function (u) {
+        if (urls.indexOf(u) === -1) urls.push(u);
+      });
+    }
+
+    if (!urls.length) {
+      log('no poster found', { id: idOfRow(row), captured: posterMap.size, row: row });
       return hideNow();
     }
 
-    const urls = largeCandidates(thumb);
     const token = ++state.token;
-    log('preview', { urls: urls, row: row });
+    log('preview', { from: poster ? poster.from : 'thumb', urls: urls });
 
     loadBest(urls, token).then(
       function (probe) {
@@ -568,6 +781,9 @@
       enabled: state.enabled,
     });
   }
+
+  // 必须在站点脚本发请求之前挂上，才能收到首屏排行榜的数据
+  hookNetwork();
 
   if (document.body) boot();
   else document.addEventListener('DOMContentLoaded', boot, { once: true });
