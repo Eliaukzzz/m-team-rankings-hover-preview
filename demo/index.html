@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>M-Team 排行榜悬浮大图 · 演示页</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --panel: #1b1e24;
+    --line: #2a2f38;
+    --text: #e6e8eb;
+    --muted: #8b93a1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  /* 顶栏 + 排序条：只为了还原页面观感，脚本不依赖这些结构 */
+  header {
+    display: flex; align-items: center; gap: 24px;
+    padding: 0 28px; height: 56px;
+    background: #101216; border-bottom: 1px solid var(--line);
+  }
+  header .logo { font-weight: 700; letter-spacing: .5px; }
+  header nav { display: flex; gap: 18px; color: var(--muted); font-size: 13px; }
+  header nav .active { color: #fff; }
+  .toolbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 28px; max-width: 1180px; margin: 0 auto;
+  }
+  .toolbar .hint { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg span { padding: 6px 12px; font-size: 13px; color: var(--muted); }
+  .seg span.on { background: #262b33; color: #fff; }
+
+  /* antd Table 近似样式 */
+  table.ant-table {
+    width: 100%; max-width: 1180px; margin: 0 auto 40px;
+    border-collapse: collapse; table-layout: fixed;
+    background: var(--panel); border-radius: 10px; overflow: hidden;
+  }
+  table.ant-table thead th {
+    text-align: left; font-weight: 500; color: var(--muted);
+    background: #21252c; padding: 10px 12px; font-size: 13px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.ant-table tbody td {
+    padding: 8px 12px; border-bottom: 1px solid var(--line);
+    vertical-align: middle; color: #d5d9df;
+  }
+  table.ant-table tbody tr:hover { background: #232830; }
+  table.ant-table tbody tr.ant-table-row { cursor: pointer; }
+  td.rank { color: var(--muted); font-variant-numeric: tabular-nums; }
+  td.center { text-align: center; }
+  .title-cell { display: flex; align-items: center; gap: 10px; }
+  .title-cell a { color: #9ec5ff; text-decoration: none; }
+  .title-cell a:hover { text-decoration: underline; }
+  .ant-image {
+    width: 44px; height: 66px; border-radius: 4px; overflow: hidden;
+    background: #000; flex: 0 0 auto;
+  }
+  .ant-image-img { width: 44px; height: 66px; object-fit: cover; display: block; }
+  .meta { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">M-Team</div>
+  <nav>
+    <span>首页</span><span>种子</span><span class="active">排行榜（新）</span><span>发布</span>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <div class="seg"><span class="on">最多完成</span><span>最多做种</span><span>最多下载</span></div>
+  <div class="hint">把鼠标移到任意一行上 → 右侧弹出大图（Alt+P 开关）</div>
+</div>
+
+<table class="ant-table ant-table-small table-fixed">
+  <colgroup>
+    <col style="width:64px" /><col /><col style="width:90px" /><col style="width:150px" />
+    <col style="width:100px" /><col style="width:100px" /><col style="width:100px" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>排名</th><th>标题</th><th class="center">大小</th><th>创建时间</th>
+      <th>抢完次</th><th>做种</th><th>下载</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="ant-table-row" data-row-key="1">
+      <td class="rank">1</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster1.jpg" alt="" /></div><div><a href="/detail/1">Dune: Part Two 2024 2160p UHD BluRay HDR10 TrueHD 7.1 Atmos</a><div class="meta">电影 / 4K / 中字</div></div></div></td>
+      <td class="center">61.24 GB</td><td>2024-05-12</td><td class="center">3821</td><td class="center">642</td><td class="center">88</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="2">
+      <td class="rank">2</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster2.jpg" alt="" /></div><div><a href="/detail/2">Blade Runner 2049 2017 REMUX 1080p AVC DTS-HD MA 5.1</a><div class="meta">电影 / 1080P</div></div></div></td>
+      <td class="center">32.08 GB</td><td>2023-11-02</td><td class="center">2940</td><td class="center">501</td><td class="center">120</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="3">
+      <td class="rank">3</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster3.jpg" alt="" /></div><div><a href="/detail/3">Interstellar 2014 IMAX 2160p UHD BluRay x265 10bit HDR DTS-HD MA 5.1</a><div class="meta">电影 / 4K / 国配</div></div></div></td>
+      <td class="center">48.76 GB</td><td>2024-02-18</td><td class="center">2411</td><td class="center">488</td><td class="center">76</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="4">
+      <td class="rank">4</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster4.jpg" alt="" /></div><div><a href="/detail/4">Oppenheimer 2023 2160p UHD BluRay HDR10 TrueHD 5.1</a><div class="meta">电影 / 4K</div></div></div></td>
+      <td class="center">55.90 GB</td><td>2024-01-06</td><td class="center">2105</td><td class="center">377</td><td class="center">91</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="5">
+      <td class="rank">5</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster5.jpg" alt="" /></div><div><a href="/detail/5">Arrival 2016 1080p BluRay x264 DTS 5.1</a><div class="meta">电影 / 1080P</div></div></div></td>
+      <td class="center">12.44 GB</td><td>2023-08-21</td><td class="center">1890</td><td class="center">266</td><td class="center">58</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="6">
+      <td class="rank">6</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster6.jpg" alt="" /></div><div><a href="/detail/6">The Batman 2022 2160p WEB-DL DDP5.1 Atmos HDR</a><div class="meta">电影 / 4K</div></div></div></td>
+      <td class="center">28.31 GB</td><td>2022-04-30</td><td class="center">1602</td><td class="center">311</td><td class="center">64</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="7">
+      <td class="rank">7</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster7.jpg" alt="" /></div><div><a href="/detail/7">Sicario 2015 1080p BluRay x264 AC3</a><div class="meta">电影 / 1080P</div></div></div></td>
+      <td class="center">9.87 GB</td><td>2021-10-11</td><td class="center">1401</td><td class="center">198</td><td class="center">43</td>
+    </tr>
+    <tr class="ant-table-row" data-row-key="8">
+      <td class="rank">8</td>
+      <td><div class="title-cell"><div class="ant-image"><img class="ant-image-img" src="/posters/poster8.jpg" alt="" /></div><div><a href="/detail/8">Tenet 2020 2160p UHD BluRay x265 10bit HDR DTS-HD MA 5.1</a><div class="meta">电影 / 4K</div></div></div></td>
+      <td class="center">44.12 GB</td><td>2021-03-09</td><td class="center">1188</td><td class="center">176</td><td class="center">39</td>
+    </tr>
+  </tbody>
+</table>
+
+<script src="/script.user.js"></script>
+<script>
+  // 演示页专用：?autohover=3 时自动在第 3 行触发一次 mouseover，方便截图/回归
+  (function () {
+    var n = parseInt((location.search.match(/autohover=(\d+)/) || [])[1], 10);
+    if (!n) return;
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        var row = document.querySelectorAll('tr.ant-table-row')[n - 1];
+        if (!row) return;
+        var target = row.querySelector('a') || row;
+        target.dispatchEvent(new PointerEvent('pointerover', {
+          bubbles: true, composed: true, pointerType: 'mouse', pointerId: 1,
+        }));
+      }, 300);
+    });
+  })();
+</script>
+</body>
+</html>
