@@ -1,7 +1,7 @@
-# M-Team 排行榜悬浮大图预览
+# M-Team Rankings Hover Preview
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/Eliaukzzz/m-team-rankings-hover-preview/main/m-team-rankings-hover-preview.user.js"><img alt="安装" src="https://img.shields.io/badge/%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85-userscript-2ea44f?style=for-the-badge&logo=tampermonkey&logoColor=white"></a>
+  <a href="https://raw.githubusercontent.com/Eliaukzzz/m-team-rankings-hover-preview/main/m-team-rankings-hover-preview.user.js"><img alt="Install" src="https://img.shields.io/badge/INSTALL-userscript-2ea44f?style=for-the-badge&logo=tampermonkey&logoColor=white"></a>
 </p>
 
 <p align="center">
@@ -11,85 +11,85 @@
   <img alt="managers" src="https://img.shields.io/badge/Tampermonkey%20%7C%20Violentmonkey-supported-black?style=flat-square">
 </p>
 
-在 M-Team 新版排行榜 [/rankings](https://kp.m-team.cc/rankings) 里，把鼠标移到任意一行上，就在行侧弹出这个种子的**海报大图**——不用点进详情页一张张看封面。
+On M-Team's new [rankings page](https://kp.m-team.cc/rankings), hover any row and the torrent's **full-size poster** pops out beside it — no need to open detail pages one by one just to see the cover.
 
-![预览](docs/preview.jpg)
+![Preview](docs/preview.jpg)
 
-<sub>真实页面截图：M-Team 新版排行榜，鼠标停在第 4 行。截图里的账号栏已经裁掉了。</sub>
+<sub>Real page, cursor resting on row 4. Torrent names are blurred on purpose; the account bar is cropped out of the frame.</sub>
 
-## 为什么
+## Why
 
-排行榜一屏 100 条，只有标题和一行标签。想知道「这部片子长什么样」「海报对不对口」，得挨个点进详情页，而且点开就离开了榜单，回来还要重新找位置。
+The rankings page shows 100 torrents at a time with nothing but a title and one line of tags. To find out "what does this release look like", you have to open each detail page — and opening one takes you off the list, so you lose your place and have to scroll back down afterwards.
 
-麻烦的是，新版排行榜的表格里**根本没有缩略图**——只有排名和标题文字。所以要做这件事，不能靠放大行内已有的小图，只能去拿页面背后的数据。
+Worse, the new rankings table has **no thumbnails at all**: only a rank and the title text. So this cannot be done by enlarging an existing inline image — the poster has to be pulled from the data behind the page.
 
-这个脚本把「看一眼海报」变成一次悬浮：**不改页面结构、不额外请求接口、不读写账号数据**，只是把页面已经拿到的封面地址读出来，贴着行浮出来。
+This script turns "take a peek at the poster" into a single hover: **no DOM surgery, no extra API calls, no account data touched**. It reads the cover URLs the page already received and floats the large image next to the row.
 
-## 功能
+## Features
 
-- **自动取海报**：新版排行榜没有行内缩略图，脚本从两条路子拿封面——拦下页面自己的排行榜接口响应，或顺着 React 数据往上找到这一行的种子对象，取出 `imageList[0]`；两样都拿不到时，才退回放大行内已有的图片（老版榜单、卡片视图仍有缩略图）。
-- **悬浮即看**：停留约 110ms 弹出，移开约 90ms 淡出。有延迟是为了避免快速划过多行时满屏闪图。
-- **智能贴边**：行右侧优先；放不下翻到左侧；两边都放不下就贴视口边缘并上下夹取，保证整张海报**完整可见**，不会被窗口切掉。
-- **大图优先**：站点常同时存 `xxx-1.jpg`（缩略）与 `xxxjp-1.jpg`（大图），脚本先试大图，失败自动回退；若加载结果明显偏小且还有更大候选，会换用更大的那张。
-- **带上标题**：大图底部叠一行标题（两行截断），扫一眼就能确认是哪个资源。
-- **随手开关**：右下角「大图」按钮或 `Alt + P`，状态记在 `localStorage`，刷新后保持；按住 `Alt` 悬浮则本次不弹（方便拖拽、选区）。
-- **不打断操作**：`pointer-events: none`，大图不吃鼠标事件；滚动、切标签页、前进后退、选中文字时自动收起。
+- **Poster from page data.** The new rankings table has no inline thumbnail, so the script gets the cover two ways: it hooks the site's own rankings XHR/Fetch response, or walks up the React fiber from the row to the torrent object, and takes `imageList[0]` from whichever hits. Only when both fail does it fall back to enlarging an inline image (old rankings page, card views).
+- **Hover to peek.** Pops out after ~110ms and fades out after ~90ms off the row. The delay keeps fast cursor sweeps from flashing images all over the screen.
+- **Smart placement.** Right of the row first; flips to the left when there is no room; if neither side fits it hugs the viewport edge and clamps vertically, so the poster is always **fully visible** and never clipped.
+- **Large variant first.** The site often keeps both `xxx-1.jpg` (thumb) and `xxxjp-1.jpg` (full). The script tries the large one first and falls back automatically; if the loaded image is clearly too small and a bigger candidate exists, it swaps.
+- **Caption on top.** A one-line title (clamped to two lines) is overlaid at the bottom of the poster so you know which release you are looking at.
+- **Toggle on demand.** The "大图" button in the bottom-right corner, or `Alt + P`. The state is kept in `localStorage` across reloads. Holding `Alt` while hovering suppresses the preview for that moment (handy while dragging or selecting text).
+- **Never in the way.** `pointer-events: none` — the preview does not eat mouse events. Scroll, tab switch, back/forward, or selecting text hides it immediately.
 
-## 安装
+## Install
 
-**先装脚本管理器**：[Tampermonkey](https://www.tampermonkey.net/)（或 Violentmonkey / ScriptCat）。
+**First install a userscript manager**: [Tampermonkey](https://www.tampermonkey.net/) (or Violentmonkey / ScriptCat).
 
-**再点这里安装脚本**：
+**Then click here to install the script**:
 
 **<https://raw.githubusercontent.com/Eliaukzzz/m-team-rankings-hover-preview/main/m-team-rankings-hover-preview.user.js>**
 
-油猴会弹出安装页，点「安装」即可。也可以把仓库里的 [m-team-rankings-hover-preview.user.js](https://github.com/Eliaukzzz/m-team-rankings-hover-preview/blob/main/m-team-rankings-hover-preview.user.js) 直接拖进浏览器窗口，或在油猴面板「添加新脚本」里粘贴内容后 `Ctrl + S`。
+Tampermonkey shows its install page — click *Install*. You can also drag [m-team-rankings-hover-preview.user.js](https://github.com/Eliaukzzz/m-team-rankings-hover-preview/blob/main/m-team-rankings-hover-preview.user.js) straight into a browser window, or paste it into a new script in the manager panel and press `Ctrl + S`.
 
-安装后打开 <https://kp.m-team.cc/rankings>，鼠标移到任意一行上就有了。
+Then open <https://kp.m-team.cc/rankings> and hover any row.
 
-> 已经从旧版升级的，更新脚本后请**刷新一次页面**：脚本要在页面发请求之前挂上钩子，才能收到首屏的排行榜数据。
+> Upgrading from an older version? **Reload the page once** after updating: the script has to hook the network before the page sends its first request, otherwise the first batch of rankings data is missed.
 
-### 环境
+### Requirements
 
-| 项目 | 要求 |
+| Item | Requirement |
 | --- | --- |
-| 浏览器 | Chrome / Edge / Firefox / Brave 等支持 `PointerEvent` 的现代版本 |
-| 脚本管理器 | Tampermonkey 4.19+、Violentmonkey 2.13+、ScriptCat |
-| 页面 | `https://kp.m-team.cc/rankings`（新版排行榜），需已登录 |
-| 窗口宽度 | ≥ 720px（窄屏放不下大图，自动不启用） |
+| Browser | Chrome / Edge / Firefox / Brave or any modern build with `PointerEvent` |
+| Userscript manager | Tampermonkey 4.19+, Violentmonkey 2.13+, ScriptCat |
+| Page | `https://kp.m-team.cc/rankings` (new rankings page), logged in |
+| Viewport width | ≥ 720px (narrower screens cannot fit the preview, so it stays off) |
 
-## 使用
+## Usage
 
-| 操作 | 效果 |
+| Action | Result |
 | --- | --- |
-| 悬浮某一行 | 行侧弹出该种子的大图（约 0.1 秒后） |
-| 移开鼠标 | 约 90ms 后淡出 |
-| `Alt + P` | 全局开关预览 |
-| 点右下角「大图」按钮 | 同上，状态会被记住 |
-| 按住 `Alt` 悬浮 | 本次不弹 |
-| 滚动页面 | 大图立即收起 |
+| Hover a row | The torrent's poster pops out beside the row (after ~0.1s) |
+| Move the cursor away | Fades out after ~90ms |
+| `Alt + P` | Toggle the preview globally |
+| Click the "大图" button | Same toggle, state is remembered |
+| Hold `Alt` while hovering | No preview for that moment |
+| Scroll the page | Preview hides immediately |
 
-## 配置
+## Configuration
 
-脚本顶部的 `CONFIG` 是唯一配置区，改完保存、刷新页面即生效：
+The `CONFIG` block at the top of the script is the only place to configure it. Edit, save, reload the page:
 
-| 配置项 | 默认值 | 说明 |
+| Option | Default | Description |
 | --- | --- | --- |
-| `paths` | `['/rankings']` | 生效的路径前缀，可加多项 |
-| `allPages` | `false` | `true` = 全站所有页面生效 |
-| `rowSelector` | `tr.ant-table-row, tr[data-row-key], table.table-fixed tbody tr` | 「一行」的匹配选择器 |
-| `thumbMinSize` | `32` | 缩略图最小可见边长，用来滤掉小图标（antd 图片、详情链接内的图不受限） |
-| `showDelay` / `hideDelay` | `110` / `90` | 弹出 / 收起的延迟（ms） |
-| `maxWidthRatio` / `maxHeightRatio` | `0.46` / `0.68` | 大图最多占视口宽 / 高比例 |
-| `maxWidthPx` | `760` | 大图宽度硬上限（px） |
-| `minPreviewPx` | `140` | 大图最小边长（px），避免超宽图被压成一条 |
-| `gap` | `16` | 大图与行之间的间距（px） |
-| `showCaption` | `true` | 底部是否显示标题 |
-| `showToggleButton` | `true` | 是否显示右下角开关按钮 |
-| `minViewportWidth` | `720` | 视口窄于此值不启用 |
-| `preferLargeMinWidth` | `360` | 加载结果小于此宽度时，尝试更大的候选图 |
+| `paths` | `['/rankings']` | Path prefixes where the script is active; add more as needed |
+| `allPages` | `false` | `true` = active on every page of the site |
+| `rowSelector` | `tr.ant-table-row, tr[data-row-key], table.table-fixed tbody tr` | Selector matching "one row" |
+| `thumbMinSize` | `32` | Minimum visible edge of a thumbnail, filters out tiny icons (antd images and images inside detail links are exempt) |
+| `showDelay` / `hideDelay` | `110` / `90` | Show / hide delay in ms |
+| `maxWidthRatio` / `maxHeightRatio` | `0.46` / `0.68` | Maximum share of viewport width / height |
+| `maxWidthPx` | `760` | Hard cap on preview width, in px |
+| `minPreviewPx` | `140` | Minimum edge of the preview, in px, so ultra-wide art is not squashed flat |
+| `gap` | `16` | Gap between preview and row, in px |
+| `showCaption` | `true` | Show the title overlay at the bottom |
+| `showToggleButton` | `true` | Show the bottom-right toggle button |
+| `minViewportWidth` | `720` | Disabled below this viewport width |
+| `preferLargeMinWidth` | `360` | If the loaded image is narrower than this, try a larger candidate |
 
-例：让老版排行榜 `/top` 也生效，并把大图调小一点：
+Example — also enable the old rankings page at `/top` and make the preview smaller:
 
 ```js
 paths: ['/rankings', '/top'],
@@ -97,91 +97,91 @@ maxWidthRatio: 0.4,
 maxHeightRatio: 0.6,
 ```
 
-## 工作原理
+## How it works
 
-1. **事件委托，不逐元素绑定**：只在 `window` 上挂捕获阶段的 `pointerover` / `pointerout`。排行榜是 antd Table，切排序、切分类会整批重渲染；逐元素绑监听（参考脚本用 `MutationObserver` + 逐个 `mouseenter`）行多时既费事又容易漏绑。
-2. **找行**：`event.target.closest(rowSelector)`；`pointerType` 非 `mouse` 直接忽略，触屏不会误弹。行 id 从 `data-row-key` 或 `/detail/<id>` 链接里取。
-3. **取海报**：先看拦截到的接口数据里有没有这个 id 的 `imageList[0]`；没有就顺着 React fiber 从行内元素往上爬，命中 `memoizedProps.torrent` / `memoizedProps.record` 后取同一字段。两条都失败才退回放大行内图片（打分：`面积 × antd 图 × 竖版`，按行 `WeakMap` 缓存）。
-4. **为什么拦接口**：页面列表数据在首屏就请求完了，`document-idle` 再挂钩子已经晚了，所以脚本改为 `document-start` 注入，只对 `/api/` 的响应做一次 `indexOf('imageList')` 预判再 `JSON.parse`，解析失败静默跳过——不改变页面行为，也不影响请求本身。
-5. **取大图**：优先 `data-src` / `data-original`（懒加载站点常见），再退 `currentSrc` / `src`；非表格场景试 `-123.jpg` → `jp-123.jpg` 变体，失败回退原图。每次加载带递增 `token`，过期结果直接丢弃，快速划过十几行也不会串图。
-6. **定位与淡入**：先 `display:block` 再读 `offsetWidth/offsetHeight`（强制布局，避免量到 0 导致抖动），按「右 → 左 → 贴边」三级回退算 `left/top`，最后改 `opacity` 触发 0.16s 过渡。**不用 `requestAnimationFrame` 显示**：后台标签页或无头环境里 rAF 可能长时间不回调，预览会一直保持透明。
+1. **Event delegation, not per-element binding.** Only `pointerover` / `pointerout` on `window` in the capture phase. The rankings page is an antd Table: changing the sort or category re-renders every row, so binding per element (the approach of the reference script, via `MutationObserver` + per-element `mouseenter`) is both wasteful and easy to miss on a 100-row list.
+2. **Find the row.** `event.target.closest(rowSelector)`; anything whose `pointerType` is not `mouse` is ignored, so touch devices cannot trigger it by accident. The row id comes from `data-row-key` or from a `/detail/<id>` link in the row.
+3. **Get the poster.** First look up `imageList[0]` for that id in the captured API data; if missing, climb the React fiber from the row and read the same field from `memoizedProps.torrent` / `memoizedProps.record`. Only if both fail does it fall back to the inline image (scored by `area × antd image × portrait`, cached per row in a `WeakMap`).
+4. **Why hook the network at all.** The list data is fetched on first paint, so hooking at `document-idle` is already too late — hence `document-start`. To stay cheap it only wraps `XMLHttpRequest` and `fetch`, pre-checks each `/api/` response with `indexOf('imageList')` before parsing, and silently skips anything that fails. Page behaviour is unchanged; the requests themselves are not touched.
+5. **Pick the large file.** Prefer `data-src` / `data-original` (common on lazy-loading sites), then `currentSrc` / `src`. Outside tables it also tries the `-123.jpg` → `jp-123.jpg` variant and falls back to the original. Every load carries an incrementing token, so stale results are dropped — sweeping across a dozen rows never shows the wrong poster.
+6. **Position and fade in.** Set `display: block` first, then read `offsetWidth` / `offsetHeight` (forces layout, avoids measuring zero and jittering), compute `left/top` with a right → left → hug-the-edge fallback chain, and finally set `opacity` to trigger a 0.16s transition. It deliberately does **not** use `requestAnimationFrame` to reveal: in background tabs or headless environments rAF may not fire for a long time, which would leave the preview transparent forever.
 
-## 适配其它页面
+## Adapting to other pages
 
-- **老版排行榜 `/top`**：`paths: ['/rankings', '/top']`。
-- **种子列表、卡片视图**：先试 `allPages: true`；卡片视图一般还要把 `rowSelector` 换成类似 `li.list-none`（参考脚本用的是 `li.list-none .ant-image[role='button']`）的选择器。
-- **站点改版**：打开 `?mthp_debug=1`，控制台会打印 `[mthp]` 日志——`harvested N posters` 是拦到的接口图，`preview { from: 'api' | 'react' | 'thumb' }` 是这次用的来源；两样都没有会打印 `no poster found`。
+- **Old rankings page `/top`**: `paths: ['/rankings', '/top']`.
+- **Torrent lists and card views**: start with `allPages: true`. Card views usually also need a different `rowSelector`, for example `li.list-none` (the reference script uses `li.list-none .ant-image[role='button']`).
+- **After a site redesign**: open the page with `?mthp_debug=1` and check the `[mthp]` console logs — `harvested N posters` is how many covers the hooked API yielded, `preview { from: 'api' | 'react' | 'thumb' }` is the source used for this hover, and `no poster found` means neither path matched.
 
-## 常见问题
+## FAQ
 
-**排行榜行里没有小海报，脚本是怎么拿到封面的？**<br>
-页面自己就是不带缩略图渲染的，但排行榜接口返回的种子对象里有 `imageList`。脚本在页面请求返回时把 `id → 封面地址` 记下来，悬浮时按行 id 查表；查不到再顺 React 数据找一遍。全程不发新请求。
+**The rows have no thumbnails — where does the poster come from?**<br>
+The page renders without thumbnails, but the rankings API response contains `imageList` for each torrent. The script records `id → cover URL` when that response arrives and looks the row up on hover; if the lookup misses, it walks the React data instead. No new requests are made at any point.
 
-**悬浮了但没反应？**<br>
-依次确认：地址是 `/rankings`（受 `CONFIG.paths` 限制）→ 窗口宽度 ≥ 720px → 右下角按钮显示「大图」而不是「大图 关」→ **更新后是否刷新过页面**（脚本要 `document-start` 注入）→ 是否与其它 M-Team 脚本冲突（先禁用其它脚本试试）。
+**Hovering does nothing.**<br>
+Check in order: the URL is `/rankings` (limited by `CONFIG.paths`) → the window is at least 720px wide → the bottom-right button reads "大图" rather than "大图 关" → **did you reload the page after updating** (the script must run at `document-start`) → another M-Team script is not interfering (disable the others to test).
 
-**还是没反应，怎么定位？**<br>
-地址加 `?mthp_debug=1` 打开控制台，看 `[mthp]` 日志：没有 `harvested` 说明接口没拦到（可能站点换了请求方式）；有 `harvested` 但没有 `preview` 说明行 id 对不上（可能表格结构变了）。把日志发到 issue 里即可。
+**Still nothing — how do I debug?**<br>
+Add `?mthp_debug=1` to the URL and open the console: no `harvested` line means the API call was not captured (the site may have changed how it fetches); `harvested` but no `preview` line means the row id did not match (the table markup may have changed). Paste the log into an issue.
 
-**大图挡住表格右边几列？**<br>
-排行榜表格几乎占满屏幕时，大图只能覆盖在上面（`pointer-events: none`，不影响点击）。把 `maxWidthRatio` 调到 `0.35`、或 `maxWidthPx` 调到 `480` 会好很多。
+**The preview covers the right-hand columns.**<br>
+When the rankings table fills the screen the preview can only sit on top of it (`pointer-events: none`, so clicks still go through). Lower `maxWidthRatio` to `0.35` or `maxWidthPx` to `480` and it gets much better.
 
-**会额外耗流量吗？**<br>
-每张图只在首次悬浮时加载一次，之后走浏览器缓存；快速划过、没停留的行不会加载。除图片本身外没有任何网络请求——拦截只是读取页面已有的响应。
+**Does it use extra bandwidth?**<br>
+Each image is loaded once, on first hover, and then comes from the browser cache; rows you sweep past without pausing never load anything. Apart from the images themselves there are no network requests — the hook only reads responses the page already received.
 
-**会把我的数据传出去吗？**<br>
-不会。脚本不读 Cookie、不发请求、不注入远端代码，逻辑全在本地；开关状态只写 `localStorage`。
+**Does it send my data anywhere?**<br>
+No. The script does not read cookies, does not make requests, does not inject remote code — all logic is local, and the on/off state is written to `localStorage` only.
 
-**手机上能用吗？**<br>
-基本不能：触屏没有 hover，脚本也主动过滤了非鼠标指针，窄屏（< 720px）还会自动关闭。
+**Does it work on mobile?**<br>
+Basically no: touch screens have no hover, the script filters out non-mouse pointers, and narrow viewports (< 720px) turn it off.
 
-## 本地开发
+## Local development
 
-仓库自带一个仿排行榜的演示页，调样式时不用登 M-Team、也不用反复真机验证：
+The repository ships with a demo page that mimics the rankings table, so you can tweak the styling without logging into M-Team or re-testing against the live site:
 
 ```bash
 git clone https://github.com/Eliaukzzz/m-team-rankings-hover-preview.git
 cd m-team-rankings-hover-preview
-node demo/serve.mjs          # 需要 Node 18+
-# 打开 http://localhost:8123/rankings
+node demo/serve.mjs          # needs Node 18+
+# open http://localhost:8123/rankings
 ```
 
-演示页刻意做成和真实页面一样的形态：行里只有标题文字、没有缩略图，海报走一个假的 `/api/torrent/search`（由 `demo/serve.mjs` 提供），这样能完整走通「拦接口 → 查表 → 出图」这条链路。加上 `?autohover=3` 会在加载后自动悬浮第 3 行，方便截图或做回归比对。
+The demo deliberately mirrors the real thing: rows contain a title only, no thumbnail, and the posters come from a fake `/api/torrent/search` served by `demo/serve.mjs` — so the whole "hook the API → look up → show the poster" path is exercised. Append `?autohover=3` to hover row 3 automatically after load, which is handy for screenshots and regression checks.
 
-![演示动图](docs/demo.gif)
+![Demo](docs/demo.gif)
 
-<sub>上面这段动图录自演示页（假数据，行里同样没有小海报）。</sub>
+<sub>The GIF above was recorded on the demo page (fake data, rows also carry no thumbnail).</sub>
 
-## 目录结构
+## Project structure
 
 ```
 m-team-rankings-hover-preview/
-├── m-team-rankings-hover-preview.user.js   # 脚本本体（安装这个）
+├── m-team-rankings-hover-preview.user.js   # the script itself (install this one)
 ├── demo/
-│   ├── index.html                          # 仿排行榜的演示页（拉假接口、不渲染缩略图）
-│   ├── serve.mjs                           # 演示页 + 假 /api/torrent/search
-│   └── posters/                            # 演示用海报图
+│   ├── index.html                          # rankings look-alike (calls the fake API, renders no thumbnails)
+│   ├── serve.mjs                           # static server + fake /api/torrent/search
+│   └── posters/                            # sample posters for the demo
 ├── docs/
-│   ├── preview.jpg                         # 真实页面截图（README 头图）
-│   └── demo.gif                            # 演示页动图
+│   ├── preview.jpg                         # real-page screenshot (hero image)
+│   └── demo.gif                            # demo page recording
 ├── LICENSE
 └── README.md
 ```
 
-## 更新日志
+## Changelog
 
-- **1.2.0**：修复「安装后在排行榜上没反应」。新版排行榜表格里没有缩略图，改为从页面接口响应 / React 数据里取 `imageList` 作为海报；`@run-at` 提前到 `document-start` 以便拦到首屏数据；行内缩略图逻辑保留为回退。
-- **1.1.1**：补全脚本头信息（`@author` / `@namespace` / `@homepageURL`）；文档整理。
-- **1.1.0**：改为事件委托；支持 `data-src` 等懒加载属性；加入大图变体回退，加载过小自动换更大候选；去掉对 `requestAnimationFrame` 的依赖；竖版图加权。
-- **1.0.0**：首个可用版本 —— 悬浮预览、贴边定位、标题叠加、`Alt + P` 开关。
+- **1.2.0** — Fixed "nothing happens on the rankings page after installing". The new rankings table has no thumbnails, so the poster now comes from `imageList` in the hooked API response / React data; `@run-at` moved to `document-start` so the first batch of data is captured; the inline-thumbnail path is kept as a fallback.
+- **1.1.1** — Completed the script header (`@author` / `@namespace` / `@homepageURL`); documentation cleanup.
+- **1.1.0** — Switched to event delegation; support for `data-src` and other lazy-loading attributes; large-variant fallback and automatic upgrade when the loaded image is too small; removed the `requestAnimationFrame` dependency; portrait images weighted higher.
+- **1.0.0** — First usable release: hover preview, edge-aware placement, title overlay, `Alt + P` toggle.
 
-## 致谢
+## Credits
 
-- 交互与选择器思路参考 [M-Team 新版页面主题 列表大图预览](https://greasyfork.org/zh-CN/scripts/538074)（作者 [Seahor](https://github.com/SeahorZhang/m-team-thems)）。本脚本是独立实现，针对排行榜用了更轻的委托式处理。
-- 页面类名、表格结构与接口字段来自对 `kp.m-team.cc` 前端 bundle 的阅读；站点改版后可能需要同步调整选择器。
+- Interaction model and selector ideas inspired by [M-Team New UI — List Image Preview](https://greasyfork.org/zh-CN/scripts/538074) by [Seahor](https://github.com/SeahorZhang/m-team-thems). This script is an independent implementation and uses a lighter delegation-based approach for the rankings page.
+- Class names, table structure and API field names come from reading the `kp.m-team.cc` frontend bundle; after a site redesign the selectors may need adjusting.
 
 ## License
 
 [MIT](LICENSE) © Eliaukzzz
 
-如果这个脚本帮你省了几次点击，欢迎点个 ⭐。
+If this script saved you a few clicks, a ⭐ is appreciated.
