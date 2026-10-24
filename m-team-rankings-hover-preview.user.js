@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         M-Team 排行榜悬浮大图预览
 // @name:en      M-Team Rankings Hover Preview
-// @namespace    m-team-rankings-hover-preview
-// @version      1.1.0
+// @namespace    https://github.com/Eliaukzzz/m-team-rankings-hover-preview
+// @version      1.1.1
 // @description  鼠标悬浮 M-Team 排行榜（/rankings）任意一行，在行侧弹出该种子的海报大图；Alt+P 或右下角按钮开关
-// @author       mthp
+// @author       Eliaukzzz
+// @homepageURL  https://github.com/Eliaukzzz/m-team-rankings-hover-preview
+// @supportURL   https://github.com/Eliaukzzz/m-team-rankings-hover-preview/issues
 // @license      MIT
 // @match        *://*.m-team.cc/*
 // @run-at       document-idle
