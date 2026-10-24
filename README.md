@@ -13,9 +13,9 @@
 
 在 M-Team 新版排行榜 [/rankings](https://kp.m-team.cc/rankings) 里，把鼠标移到任意一行上，就在行侧弹出这个种子的**海报大图**——不用点进详情页一张张看封面。
 
-![演示](docs/demo.gif)
+![预览](docs/preview.jpg)
 
-<sub>动图取自仓库自带的 demo 页（假数据）。真实页面上一行只有标题和标签、没有小海报，弹出的大图是脚本从页面数据里读出来的封面。</sub>
+<sub>真实页面截图：M-Team 新版排行榜，鼠标停在第 4 行。截图里的账号栏已经裁掉了。</sub>
 
 ## 为什么
 
@@ -148,6 +148,10 @@ node demo/serve.mjs          # 需要 Node 18+
 
 演示页刻意做成和真实页面一样的形态：行里只有标题文字、没有缩略图，海报走一个假的 `/api/torrent/search`（由 `demo/serve.mjs` 提供），这样能完整走通「拦接口 → 查表 → 出图」这条链路。加上 `?autohover=3` 会在加载后自动悬浮第 3 行，方便截图或做回归比对。
 
+![演示动图](docs/demo.gif)
+
+<sub>上面这段动图录自演示页（假数据，行里同样没有小海报）。</sub>
+
 ## 目录结构
 
 ```
@@ -158,8 +162,8 @@ m-team-rankings-hover-preview/
 │   ├── serve.mjs                           # 演示页 + 假 /api/torrent/search
 │   └── posters/                            # 演示用海报图
 ├── docs/
-│   ├── demo.gif                            # README 动图
-│   └── preview.png                         # 静态截图
+│   ├── preview.jpg                         # 真实页面截图（README 头图）
+│   └── demo.gif                            # 演示页动图
 ├── LICENSE
 └── README.md
 ```
